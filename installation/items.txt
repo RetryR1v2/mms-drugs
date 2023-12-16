@@ -1,0 +1,11 @@
+  -- mms-drugs
+
+    ['weed']  = {['name'] = 'weed',  ['label'] = 'Weed',  ['weight'] = 10,  ['type'] = 'item', ['image'] = 'weed.png',  ['unique'] = false, ['useable'] = false,  ['shouldClose'] = false, ['combinable'] = nil, ['level'] = 0, ['description'] = 'Weed'},
+    ['joint']  = {['name'] = 'joint',  ['label'] = 'Joint',  ['weight'] = 10,  ['type'] = 'item', ['image'] = 'joint.png',  ['unique'] = false, ['useable'] = true,  ['shouldClose'] = true, ['combinable'] = nil, ['level'] = 0, ['description'] = 'Joint'},
+    ['opium']  = {['name'] = 'opium',  ['label'] = 'Opium',  ['weight'] = 10,  ['type'] = 'item', ['image'] = 'opium.png',  ['unique'] = false, ['useable'] = false,  ['shouldClose'] = false, ['combinable'] = nil, ['level'] = 0, ['description'] = 'Opium'},
+    ['opiat']  = {['name'] = 'opiat',  ['label'] = 'Opiat',  ['weight'] = 10,  ['type'] = 'item', ['image'] = 'opiat.png',  ['unique'] = false, ['useable'] = true,  ['shouldClose'] = true, ['combinable'] = nil, ['level'] = 0, ['description'] = 'opiat'},
+    ['kokain']  = {['name'] = 'kokain',  ['label'] = 'Kokain',  ['weight'] = 10,  ['type'] = 'item', ['image'] = 'kokain.png',  ['unique'] = false, ['useable'] = false,  ['shouldClose'] = false, ['combinable'] = nil, ['level'] = 0, ['description'] = 'Kokain'},
+    ['kokainpulver']  = {['name'] = 'kokainpulver',  ['label'] = 'Kokain Pulver',  ['weight'] = 10,  ['type'] = 'item', ['image'] = 'kokainpulver.png',  ['unique'] = false, ['useable'] = true,  ['shouldClose'] = true, ['combinable'] = nil, ['level'] = 0, ['description'] = 'Kokain Pulver'},
+    ['sporen']  = {['name'] = 'sporen',  ['label'] = 'Sporen',  ['weight'] = 10,  ['type'] = 'item', ['image'] = 'sporen.png',  ['unique'] = false, ['useable'] = false,  ['shouldClose'] = false, ['combinable'] = nil, ['level'] = 0, ['description'] = 'Sporen'},
+    ['pilze']  = {['name'] = 'pilze',  ['label'] = 'Pilze',  ['weight'] = 10,  ['type'] = 'item', ['image'] = 'pilze.png',  ['unique'] = false, ['useable'] = true,  ['shouldClose'] = true, ['combinable'] = nil, ['level'] = 0, ['description'] = 'Pilze'},
+  
