@@ -1,4 +1,5 @@
 local RSGCore = exports['rsg-core']:GetCoreObject()
+FeatherMenu =  exports['feather-menu'].initiate()
 local spawnedweed = false
 local spawnedopium = false
 local spawnedkokain = false
@@ -9,6 +10,7 @@ local smoked = 0
 local eaten = 0
 local taken = 0
 local drunken = 0
+
 
 -----------------------------------------------------------------------------Utilities------------------------------------------------
 
@@ -226,19 +228,19 @@ end
 --- Loading Circles for Crafting
 
 RegisterNetEvent('mms-drugs:client:weedworkercircle')
-AddEventHandler('mms-drugs:client:weedworkercircle', function(weedworker)
+AddEventHandler('mms-drugs:client:weedworkercircle', function(anzahl)
     lib.progressCircle({
-        duration = 2800, -- Adjust the duration as needed
+        duration = Config.WorktimeWeedWorker * anzahl, -- Adjust the duration as needed
         label = 'Verarbeite Weed',
         position = 'bottom',
-        useWhileDead = false, 
+        useWhileDead = false,
     })
 end)
 
 RegisterNetEvent('mms-drugs:client:weedsellercircle')
-AddEventHandler('mms-drugs:client:weedsellercircle', function(weedworker)
+AddEventHandler('mms-drugs:client:weedsellercircle', function(anzahl)
     lib.progressCircle({
-        duration = 2800, -- Adjust the duration as needed
+        duration = Config.SellJointTime * anzahl, -- Adjust the duration as needed
         label = 'Verkaufe Joints',
         position = 'bottom',
         useWhileDead = false, 
@@ -246,9 +248,9 @@ AddEventHandler('mms-drugs:client:weedsellercircle', function(weedworker)
 end)
 
 RegisterNetEvent('mms-drugs:client:opiumworkercircle')
-AddEventHandler('mms-drugs:client:opiumworkercircle', function(weedworker)
+AddEventHandler('mms-drugs:client:opiumworkercircle', function(anzahl)
     lib.progressCircle({
-        duration = 2800, -- Adjust the duration as needed
+        duration = Config.WorktimeOpiumWorker * anzahl, -- Adjust the duration as needed
         label = 'Verarbeite Opium',
         position = 'bottom',
         useWhileDead = false, 
@@ -256,9 +258,9 @@ AddEventHandler('mms-drugs:client:opiumworkercircle', function(weedworker)
 end)
 
 RegisterNetEvent('mms-drugs:client:opiatsellercircle')
-AddEventHandler('mms-drugs:client:opiatsellercircle', function(weedworker)
+AddEventHandler('mms-drugs:client:opiatsellercircle', function(anzahl)
     lib.progressCircle({
-        duration = 2800, -- Adjust the duration as needed
+        duration = Config.SellOpiatTime * anzahl, -- Adjust the duration as needed
         label = 'Verkaufe Opiate',
         position = 'bottom',
         useWhileDead = false, 
@@ -266,9 +268,9 @@ AddEventHandler('mms-drugs:client:opiatsellercircle', function(weedworker)
 end)
 
 RegisterNetEvent('mms-drugs:client:kokainworkercircle')
-AddEventHandler('mms-drugs:client:kokainworkercircle', function(weedworker)
+AddEventHandler('mms-drugs:client:kokainworkercircle', function(anzahl)
     lib.progressCircle({
-        duration = 2800, -- Adjust the duration as needed
+        duration = Config.WorktimeKokainWorker * anzahl, -- Adjust the duration as needed
         label = 'Verarbeite Kokain',
         position = 'bottom',
         useWhileDead = false, 
@@ -276,9 +278,9 @@ AddEventHandler('mms-drugs:client:kokainworkercircle', function(weedworker)
 end)
 
 RegisterNetEvent('mms-drugs:client:kokainsellercircle')
-AddEventHandler('mms-drugs:client:kokainsellercircle', function(weedworker)
+AddEventHandler('mms-drugs:client:kokainsellercircle', function(anzahl)
     lib.progressCircle({
-        duration = 2800, -- Adjust the duration as needed
+        duration = Config.SellKokainTime * anzahl, -- Adjust the duration as needed
         label = 'Verkaufe Kokain Pulver',
         position = 'bottom',
         useWhileDead = false, 
@@ -286,19 +288,19 @@ AddEventHandler('mms-drugs:client:kokainsellercircle', function(weedworker)
 end)
 
 RegisterNetEvent('mms-drugs:client:sporenworkercircle')
-AddEventHandler('mms-drugs:client:sporenworkercircle', function(weedworker)
+AddEventHandler('mms-drugs:client:sporenworkercircle', function(anzahl)
     lib.progressCircle({
-        duration = 2800, -- Adjust the duration as needed
+        duration = Config.WorktimeSporenWorker, -- Adjust the duration as needed
         label = 'Verarbeite Sporen',
         position = 'bottom',
         useWhileDead = false, 
     })
 end)
 
-RegisterNetEvent('mms-drugs:client:pilzesellercircle')
-AddEventHandler('mms-drugs:client:pilzesellercircle', function(weedworker)
+RegisterNetEvent('mms-drugs:client:pilzsellercircle')
+AddEventHandler('mms-drugs:client:pilzsellercircle', function(anzahl)
     lib.progressCircle({
-        duration = 2800, -- Adjust the duration as needed
+        duration = Config.SellPilzTime*anzahl, -- Adjust the duration as needed
         label = 'Verkaufe Pilze',
         position = 'bottom',
         useWhileDead = false, 
@@ -334,7 +336,7 @@ end
 -- prompt and blip for weed Plants
 Citizen.CreateThread(function()
     for weed,v in pairs(Config.weedplant) do
-        exports['rsg-core']:createPrompt(v.name, v.coords -1, RSGCore.Shared.Keybinds['J'], 'Ernte ' ..v.lable, {
+        exports['rsg-core']:createPrompt(v.weedplantid, v.coords -1, RSGCore.Shared.Keybinds['J'], 'Ernte ' ..v.lable, {
             type = 'client',
             event = 'mms-drugs:client:checkweedplant',
             args = { v.name },
@@ -364,8 +366,8 @@ Citizen.CreateThread(function()
                 SetEntityAsMissionEntity(weedplant, true)
                 PlaceObjectOnGroundProperly(weedplant, true)
                 FreezeEntityPosition(weedplant, true)
-                spawnedweed = true
             end
+            spawnedweed = true
         end
     end
 end)
@@ -378,7 +380,7 @@ AddEventHandler('mms-drugs:client:checkweedplant', function(weedplant)
         busy = true
         CrouchAnim()
         lib.progressCircle({
-            duration = 5000, -- Adjust the duration as needed
+            duration = Config.HaverestWeedTime, -- Adjust the duration as needed
             label = 'Ernte Weed',
             position = 'bottom',
             useWhileDead = false, 
@@ -388,7 +390,7 @@ AddEventHandler('mms-drugs:client:checkweedplant', function(weedplant)
         cooldownTimer()
         busy = false
     else
-        RSGCore.Functions.Notify('Die Pflanze wächst Bitte warte ' .. cooldownSecondsRemaining .. ' Sekunden', 'Wachstum')
+        RSGCore.Functions.Notify('Die Pflanze wächst Bitte warte ' .. cooldownSecondsRemaining .. ' Sekunden', 'info')
     end
 end)
 
@@ -396,9 +398,9 @@ end)
 
 Citizen.CreateThread(function()
     for weedworker,v in pairs(Config.weedworker) do
-        exports['rsg-core']:createPrompt(v.name, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
+        exports['rsg-core']:createPrompt(v.weedworkerid, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
             type = 'client',
-            event = 'mms-drugs:client:menu',
+            event = 'mms-drugs:client:openweedworkermenu',
             args = {},
         })
         if v.showblipworker == true then
@@ -409,70 +411,113 @@ Citizen.CreateThread(function()
         end
     end
 end)
+RegisterNetEvent('mms-drugs:client:openweedworkermenu')
+AddEventHandler('mms-drugs:client:openweedworkermenu', function(inputValue)
+    WeedVerarbeiterMenu:Open({
+        startupPage = Page1, 
+    })
+end)
 
 
 
 -- Verarbeiter Menü
-
-RegisterNetEvent('mms-drugs:client:menu', function()
-    lib.registerContext(
-        {
-            id = 'weedworker',
-            title = ('Weed Verarbeiter Menu'),
-            position = 'top-right',
-            options = {
-                {
-                    title = ('Weed Verarbeiten'),
-                    description = ('5 Weed = 1 Joint'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:worker',
-                },
-                {
-                    title = ('Weed Verarbeiten'),
-                    description = ('25 Weed = 5 Joint'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:worker5',
-                },
-                {
-                    title = ('Weed Verarbeiten'),
-                    description = ('50 Weed = 10 Joint'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:worker10',
-                },
-            }
+Citizen.CreateThread(function()
+WeedVerarbeiterMenu = FeatherMenu:RegisterMenu('feather:character:weedverarbeitermenu', {
+    top = '40%',
+    left = '20%',
+    ['720width'] = '500px',
+    ['1080width'] = '600px',
+    ['2kwidth'] = '700px',
+    ['4kwidth'] = '900px',
+    style = {
+        -- ['height'] = '500px'
+        ['border'] = '5px solid green',
+        -- ['background-image'] = 'none',
+        ['background-color'] = '#006400'
+    },
+    contentslot = {
+        style = { --This style is what is currently making the content slot scoped and scrollable. If you delete this, it will make the content height dynamic to its inner content.
+            ['height'] = '500px',
+            ['min-height'] = '300px'
         }
-    )
-    lib.showContext('weedworker')
+    },
+    draggable = true,
+    --canclose = false
+})
+Page1 = WeedVerarbeiterMenu:RegisterPage('first:page1')
+Page1:RegisterElement('header', {
+    value = 'Weed Verarbeiter',
+    slot = "header",
+    style = {}
+})
+Page1:RegisterElement('line', {
+    slot = "header",
+    style = {}
+})
+TextDisplay1 = Page1:RegisterElement('textdisplay', {
+    value = "Verarbeite dein Weed zu Joints!",
+    style = {}
+})
+TextDisplay2 = Page1:RegisterElement('textdisplay', {
+    value = 'Rezept: ' .. Config.ReciepeWeedNeeded.. ' Weed = '.. Config.ReciepeJointReward .. ' Joints!',
+    style = {}
+})
+local dauer = Config.WorktimeWeedWorker / 1000
+TextDisplay3 = Page1:RegisterElement('textdisplay', {
+    value = 'Dauer: ' .. dauer .. ' Sekunden!',
+    style = {}
+})
+local inputValue = ''
+Page1:RegisterElement('input', {
+    label = "Wie Oft Herstellen:",
+    placeholder = "1",
+    persist = false,
+    style = {
+    }
+}, function(data)
+    inputValue = data.value
+end)
+Page1:RegisterElement('button', {
+    label = "Jetzt Verarbeiten",
+    style = {
+    },
+}, function()
+    TriggerEvent('mms-drugs:client:weedworker',inputValue)
+end)
+Page1:RegisterElement('button', {
+    label = "Verarbeiter Verlassen",
+    style = {
+    },
+}, function()
+    WeedVerarbeiterMenu:Close({ 
+    })
+end)
+Page1:RegisterElement('subheader', {
+    value = "Weed Verarbeiter",
+    slot = "footer",
+    style = {}
+})
+Page1:RegisterElement('line', {
+    slot = "footer",
+    style = {}
+})
 end)
 
-RegisterNetEvent('mms-drugs:client:worker')
-AddEventHandler('mms-drugs:client:worker', function(weedworker)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:weedworker' ,1)
 
+RegisterNetEvent('mms-drugs:client:weedworker')
+AddEventHandler('mms-drugs:client:weedworker', function(inputValue)
+        local anzahl = tostring(inputValue)
+        TriggerServerEvent('mms-drugs:server:weedworker' ,anzahl)
 end)
 
-RegisterNetEvent('mms-drugs:client:worker5')
-AddEventHandler('mms-drugs:client:worker5', function(weedworker5)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:weedworker5' ,1)
-
-end)
-
-RegisterNetEvent('mms-drugs:client:worker10')
-AddEventHandler('mms-drugs:client:worker10', function(weedworker10)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:weedworker10' ,1)
-
-end)
 
 -- Verkäufer prompt
 
 Citizen.CreateThread(function()
-    for weedseller,v in pairs(Config.weedseller) do
-        exports['rsg-core']:createPrompt(v.name, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
+    for weedseller,v in pairs(Config.jointseller) do
+        exports['rsg-core']:createPrompt(v.jointsellerid, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
             type = 'client',
-            event = 'mms-drugs:client:sellermenu',
+            event = 'mms-drugs:client:jointsellermenu',
             args = {},
         })
         if v.showblipseller == true then
@@ -484,70 +529,100 @@ Citizen.CreateThread(function()
     end
 end)
 
+RegisterNetEvent('mms-drugs:client:jointsellermenu')
+AddEventHandler('mms-drugs:client:jointsellermenu', function(inputValue)
+    JointMenu:Open({
+        startupPage = Page2,
+    })
+end)
 
-
--- Verkäufer Menü
-
-RegisterNetEvent('mms-drugs:client:sellermenu', function()
-    lib.registerContext(
-        {
-            id = 'weedseller',
-            title = ('Weed Verkäufer Menu'),
-            position = 'top-right',
-            options = {
-                {
-                    title = ('Weed Verkäufer 1 Joint'),
-                    description = ('1 Joint = ' .. Config.sellprice .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:seller1',
-                },
-                {
-                    title = ('Weed Verkäufer 5 Joints'),
-                    description = ('5 Joints = ' .. Config.sellprice * 5 .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:seller5',
-                },
-                {
-                    title = ('Weed Verkäufer 25 Joints'),
-                    description = ('25 Joints = ' .. Config.sellprice * 25 .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:seller25',
-                },
-                {
-                    title = ('Weed Verkäufer 50 Joints'),
-                    description = ('50 Joints = ' .. Config.sellprice * 50 .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:seller50',
-                },
+Citizen.CreateThread(function()
+    JointMenu = FeatherMenu:RegisterMenu('feather:character:weedverarbeitermenu', {
+        top = '40%',
+        left = '20%',
+        ['720width'] = '500px',
+        ['1080width'] = '600px',
+        ['2kwidth'] = '700px',
+        ['4kwidth'] = '900px',
+        style = {
+            -- ['height'] = '500px'
+            ['border'] = '5px solid green',
+            -- ['background-image'] = 'none',
+            ['background-color'] = '#006400'
+        },
+        contentslot = {
+            style = { --This style is what is currently making the content slot scoped and scrollable. If you delete this, it will make the content height dynamic to its inner content.
+                ['height'] = '500px',
+                ['min-height'] = '300px'
             }
+        },
+        draggable = true,
+        --canclose = false
+    })
+    Page2 = JointMenu:RegisterPage('first:page2')
+    Page2:RegisterElement('header', {
+        value = 'Joint Verkäufer',
+        slot = "header",
+        style = {}
+    })
+    Page2:RegisterElement('line', {
+        slot = "header",
+        style = {}
+    })
+    TextDisplay4 = Page1:RegisterElement('textdisplay', {
+        value = "Verkaufe deine Joints!",
+        style = {}
+    })
+    TextDisplay5 = Page1:RegisterElement('textdisplay', {
+        value = 'Preis: ' .. Config.SellJointPrice.. ' $. Für ' .. Config.SellJointAmount.. ' Joints!',
+        style = {}
+    })
+    local dauer = Config.SellJointTime / 1000
+    TextDisplay6 = Page1:RegisterElement('textdisplay', {
+        value = 'Dauer: ' .. dauer .. ' Sekunden!',
+        style = {}
+    })
+    local inputValue = ''
+    Page2:RegisterElement('input', {
+        label = "Wieviele Verkaufen:",
+        placeholder = "1",
+        persist = false,
+        style = {
         }
-    )
-    lib.showContext('weedseller')
-end)
-
-RegisterNetEvent('mms-drugs:client:seller1')
-AddEventHandler('mms-drugs:client:seller1', function(weedworker)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:weedseller1' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:seller5')
-AddEventHandler('mms-drugs:client:seller5', function(weedworker)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:weedseller5' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:seller25')
-AddEventHandler('mms-drugs:client:seller25', function(weedworker)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:weedseller25' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:seller50')
-AddEventHandler('mms-drugs:client:seller50', function(weedworker)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:weedseller50' ,1)
-end)
+    }, function(data)
+        inputValue = data.value
+    end)
+    Page2:RegisterElement('button', {
+        label = "Jetzt Verkaufen",
+        style = {
+        },
+    }, function()
+        TriggerEvent('mms-drugs:client:weedseller',inputValue)
+    end)
+    Page2:RegisterElement('button', {
+        label = "Verkäufer Verlassen",
+        style = {
+        },
+    }, function()
+        JointMenu:Close({ 
+        })
+    end)
+    Page2:RegisterElement('subheader', {
+        value = "Joint Verkäufer",
+        slot = "footer",
+        style = {}
+    })
+    Page2:RegisterElement('line', {
+        slot = "footer",
+        style = {}
+    })
+    end)
+    
+    RegisterNetEvent('mms-drugs:client:weedseller')
+    AddEventHandler('mms-drugs:client:weedseller', function(inputValue)
+            local anzahl = tostring(inputValue)
+            TriggerServerEvent('mms-drugs:server:weedseller' ,anzahl)
+    end)
 
 -----------------------------------------------------------------------------OPIUM------------------------------------------------
 
@@ -555,10 +630,10 @@ end)
 
 Citizen.CreateThread(function()
     for weed,v in pairs(Config.opiumplant) do
-        exports['rsg-core']:createPrompt(v.name, v.coords -1, RSGCore.Shared.Keybinds['J'], 'Ernte ' ..v.lable, {
+        exports['rsg-core']:createPrompt(v.opiumplantid, v.coords -1, RSGCore.Shared.Keybinds['J'], 'Ernte ' ..v.lable, {
             type = 'client',
             event = 'mms-drugs:client:checkopiumplant',
-            args = { v.name },
+            args = {  },
         })
         if v.showblipopium == true then
             local opiumblip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.coords)
@@ -599,7 +674,7 @@ AddEventHandler('mms-drugs:client:checkopiumplant', function(opiumplant)
         busy = true
         CrouchAnim()
         lib.progressCircle({
-            duration = 5000, -- Adjust the duration as needed
+            duration = Config.HaverestOpiumTime, -- Adjust the duration as needed
             label = 'Ernte Opium',
             position = 'bottom',
             useWhileDead = false, 
@@ -609,7 +684,7 @@ AddEventHandler('mms-drugs:client:checkopiumplant', function(opiumplant)
         cooldownTimer()
         busy = false
     else
-        RSGCore.Functions.Notify('Die Pflanze wächst Bitte warte ' .. cooldownSecondsRemaining .. ' Sekunden', 'Wachstum')
+        RSGCore.Functions.Notify('Die Pflanze wächst Bitte warte ' .. cooldownSecondsRemaining .. ' Sekunden', 'info')
     end
 end)
 
@@ -617,9 +692,9 @@ end)
 
 Citizen.CreateThread(function()
     for opiumworker,v in pairs(Config.opiumworker) do
-        exports['rsg-core']:createPrompt(v.name, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
+        exports['rsg-core']:createPrompt(v.opiumworkerid, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
             type = 'client',
-            event = 'mms-drugs:client:opiummenu',
+            event = 'mms-drugs:client:openopiumworkermenu',
             args = {},
         })
         if v.showblipopiumworker == true then
@@ -633,62 +708,109 @@ end)
 
 
 
--- Verarbeiter Menü
-
-RegisterNetEvent('mms-drugs:client:opiummenu', function()
-    lib.registerContext(
-        {
-            id = 'opiumworker',
-            title = ('Opium Verarbeiter Menu'),
-            position = 'top-right',
-            options = {
-                {
-                    title = ('Opium Verarbeiten'),
-                    description = ('5 Opium = 1 Opiat'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:opiumworker',
-                },
-                {
-                    title = ('Opium Verarbeiten'),
-                    description = ('25 Opium = 5 Opiat'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:opiumworker5',
-                },
-                {
-                    title = ('Opium Verarbeiten'),
-                    description = ('50 Opium = 10 Opiat'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:opiumworker10',
-                },
-            }
-        }
-    )
-    lib.showContext('opiumworker')
+RegisterNetEvent('mms-drugs:client:openopiumworkermenu')
+AddEventHandler('mms-drugs:client:openopiumworkermenu', function()
+    OpiumMenu:Open({
+        startupPage = Page3, 
+    })
 end)
+
+
+-- Verarbeiter Menü
+Citizen.CreateThread(function()
+OpiumMenu = FeatherMenu:RegisterMenu('feather:character:opiummenu', {
+    top = '40%',
+    left = '20%',
+    ['720width'] = '500px',
+    ['1080width'] = '600px',
+    ['2kwidth'] = '700px',
+    ['4kwidth'] = '900px',
+    style = {
+        -- ['height'] = '500px'
+        ['border'] = '5px solid green',
+        -- ['background-image'] = 'none',
+        ['background-color'] = '#006400'
+    },
+    contentslot = {
+        style = { --This style is what is currently making the content slot scoped and scrollable. If you delete this, it will make the content height dynamic to its inner content.
+            ['height'] = '500px',
+            ['min-height'] = '300px'
+        }
+    },
+    draggable = true,
+    --canclose = false
+})
+Page3 = OpiumMenu:RegisterPage('first:page3')
+Page3:RegisterElement('header', {
+    value = 'Opium Verarbeiter',
+    slot = "header",
+    style = {}
+})
+Page3:RegisterElement('line', {
+    slot = "header",
+    style = {}
+})
+TextDisplay7 = Page2:RegisterElement('textdisplay', {
+    value = "Verarbeite dein Opium zu Opiate!",
+    style = {}
+})
+TextDisplay8 = Page2:RegisterElement('textdisplay', {
+    value = 'Rezept: ' .. Config.ReciepeOpiumNeeded.. ' Opium = '.. Config.ReciepeOpiatReward .. ' Opiate!',
+    style = {}
+})
+local dauer = Config.WorktimeOpiumWorker / 1000
+TextDisplay9 = Page2:RegisterElement('textdisplay', {
+    value = 'Dauer: ' .. dauer .. ' Sekunden!',
+    style = {}
+})
+local inputValue = ''
+Page3:RegisterElement('input', {
+    label = "Wie Oft Herstellen:",
+    placeholder = "1",
+    persist = false,
+    style = {
+   }
+}, function(data)
+    inputValue = data.value
+end)
+Page3:RegisterElement('button', {
+    label = "Jetzt Verarbeiten",
+    style = {
+    },
+}, function()
+    TriggerEvent('mms-drugs:client:opiumworker',inputValue)
+end)
+Page3:RegisterElement('button', {
+    label = "Verarbeiter Verlassen",
+    style = {
+    },
+}, function()
+    OpiumMenu:Close({ 
+    })
+end)
+Page3:RegisterElement('subheader', {
+    value = "Opium Verarbeiter",
+    slot = "footer",
+    style = {}
+})
+Page3:RegisterElement('line', {
+    slot = "footer",
+    style = {}
+})
+end)
+
 
 RegisterNetEvent('mms-drugs:client:opiumworker')
-AddEventHandler('mms-drugs:client:opiumworker', function(opiumworker)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:opiumworker' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:opiumworker5')
-AddEventHandler('mms-drugs:client:opiumworker5', function(opiumworker)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:opiumworker5' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:opiumworker10')
-AddEventHandler('mms-drugs:client:opiumworker10', function(opiumworker)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:opiumworker10' ,1)
+AddEventHandler('mms-drugs:client:opiumworker', function(inputValue)
+        local anzahl = tostring(inputValue)
+        TriggerServerEvent('mms-drugs:server:opiumworker' ,anzahl)
 end)
 
 -- Verkäufer prompt
 
 Citizen.CreateThread(function()
     for opiatseller,v in pairs(Config.opiatseller) do
-        exports['rsg-core']:createPrompt(v.name, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
+        exports['rsg-core']:createPrompt(v.opiatsellerid, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
             type = 'client',
             event = 'mms-drugs:client:opiatsellermenu',
             args = {},
@@ -706,66 +828,100 @@ end)
 
 -- Verkäufer Menü
 
-RegisterNetEvent('mms-drugs:client:opiatsellermenu', function()
-    lib.registerContext(
-        {
-            id = 'opiatseller',
-            title = ('Opiat Verkäufer Menu'),
-            position = 'top-right',
-            options = {
-                {
-                    title = ('Opiat Verkäufer'),
-                    description = ('1 Opiat = ' .. Config.sellpriceopiat .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:opiatseller1',
-                },
-                {
-                    title = ('Opiat Verkäufer'),
-                    description = ('5 Opiate = ' .. Config.sellpriceopiat * 5 .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:opiatseller5',
-                },
-                {
-                    title = ('Opiat Verkäufer'),
-                    description = ('25 Opiate = ' .. Config.sellpriceopiat * 25 .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:opiatseller25',
-                },
-                {
-                    title = ('Opiat Verkäufer'),
-                    description = ('50 Opiate = ' .. Config.sellpriceopiat * 50 .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:opiatseller50',
-                },
+RegisterNetEvent('mms-drugs:client:opiatsellermenu')
+AddEventHandler('mms-drugs:client:opiatsellermenu', function(inputValue)
+    OpiatMenu:Open({
+        startupPage = Page4,
+    })
+end)
+
+Citizen.CreateThread(function()
+    OpiatMenu = FeatherMenu:RegisterMenu('feather:character:opiatsellermenu', {
+        top = '40%',
+        left = '20%',
+        ['720width'] = '500px',
+        ['1080width'] = '600px',
+        ['2kwidth'] = '700px',
+        ['4kwidth'] = '900px',
+        style = {
+            -- ['height'] = '500px'
+            ['border'] = '5px solid green',
+            -- ['background-image'] = 'none',
+            ['background-color'] = '#006400'
+        },
+        contentslot = {
+            style = { --This style is what is currently making the content slot scoped and scrollable. If you delete this, it will make the content height dynamic to its inner content.
+                ['height'] = '500px',
+                ['min-height'] = '300px'
             }
+        },
+        draggable = true,
+        --canclose = false
+    })
+    Page4 = OpiatMenu:RegisterPage('first:page4')
+    Page4:RegisterElement('header', {
+        value = 'Opiat Verkäufer',
+        slot = "header",
+        style = {}
+    })
+    Page4:RegisterElement('line', {
+        slot = "header",
+        style = {}
+    })
+    TextDisplay10 = Page4:RegisterElement('textdisplay', {
+        value = "Verkaufe deine Opiate!",
+        style = {}
+    })
+    TextDisplay11 = Page4:RegisterElement('textdisplay', {
+        value = 'Preis: ' .. Config.SellOpiatPrice.. ' $. Für ' .. Config.SellOpiatAmount.. ' Opiate!',
+        style = {}
+    })
+    local dauer = Config.SellOpiatTime / 1000
+    TextDisplay12 = Page4:RegisterElement('textdisplay', {
+        value = 'Dauer: ' .. dauer .. ' Sekunden!',
+        style = {}
+    })
+    local inputValue = ''
+    Page4:RegisterElement('input', {
+        label = "Wieviele Verkaufen:",
+        placeholder = "1",
+        persist = false,
+        style = {
         }
-    )
-    lib.showContext('opiatseller')
-end)
-
-RegisterNetEvent('mms-drugs:client:opiatseller1')
-AddEventHandler('mms-drugs:client:opiatseller1', function(opiatseller)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:opiatseller1' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:opiatseller5')
-AddEventHandler('mms-drugs:client:opiatseller5', function(opiatseller)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:opiatseller5' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:opiatseller25')
-AddEventHandler('mms-drugs:client:opiatseller25', function(opiatseller)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:opiatseller25' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:opiatseller50')
-AddEventHandler('mms-drugs:client:opiatseller50', function(opiatseller)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:opiatseller50' ,1)
-end)
+    }, function(data)
+        inputValue = data.value
+    end)
+    Page4:RegisterElement('button', {
+        label = "Jetzt Verkaufen",
+        style = {
+        },
+    }, function()
+        TriggerEvent('mms-drugs:client:opiatseller',inputValue)
+    end)
+    Page4:RegisterElement('button', {
+        label = "Verkäufer Verlassen",
+        style = {
+        },
+    }, function()
+        OpiatMenu:Close({ 
+        })
+    end)
+    Page4:RegisterElement('subheader', {
+        value = "Opiat Verkäufer",
+        slot = "footer",
+        style = {}
+    })
+    Page4:RegisterElement('line', {
+        slot = "footer",
+        style = {}
+    })
+    end)
+    
+    RegisterNetEvent('mms-drugs:client:opiatseller')
+    AddEventHandler('mms-drugs:client:opiatseller', function(inputValue)
+            local anzahl = tostring(inputValue)
+            TriggerServerEvent('mms-drugs:server:opiatseller' ,anzahl)
+    end)
 
 -----------------------------------------------------------------------------Kokain------------------------------------------------
 
@@ -773,14 +929,14 @@ end)
 
 Citizen.CreateThread(function()
     for kokain,v in pairs(Config.kokainplant) do
-        exports['rsg-core']:createPrompt(v.name, v.coords -1, RSGCore.Shared.Keybinds['J'], 'Ernte ' ..v.lable, {
+        exports['rsg-core']:createPrompt(v.kokainplantid, v.coords -1, RSGCore.Shared.Keybinds['J'], 'Ernte ' ..v.lable, {
             type = 'client',
             event = 'mms-drugs:client:checkkokainplant',
-            args = { v.name },
+            args = {  },
         })
         if v.showblipkokain == true then
             local kokainblip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.coords)
-            SetBlipSprite(kokainblip, GetHashKey(Config.Blipkokainlant.blipSprite), true)
+            SetBlipSprite(kokainblip, GetHashKey(Config.Blipkokainplant.blipSprite), true)
             SetBlipScale(kokainblip, Config.Blipkokainplant.blipScale)
             Citizen.InvokeNative(0x9CB1A1623062F402, kokainblip, Config.Blipkokainplant.blipName)
         end
@@ -817,7 +973,7 @@ AddEventHandler('mms-drugs:client:checkkokainplant', function(kokainplant)
         busy = true
         CrouchAnim()
         lib.progressCircle({
-            duration = 5000, -- Adjust the duration as needed
+            duration = Config.HaverestKokainTime, -- Adjust the duration as needed
             label = 'Ernte Kokain',
             position = 'bottom',
             useWhileDead = false, 
@@ -827,7 +983,7 @@ AddEventHandler('mms-drugs:client:checkkokainplant', function(kokainplant)
         cooldownTimer()
         busy = false
     else
-        RSGCore.Functions.Notify('Die Pflanze wächst Bitte warte ' .. cooldownSecondsRemaining .. ' Sekunden', 'Wachstum')
+        RSGCore.Functions.Notify('Die Pflanze wächst Bitte warte ' .. cooldownSecondsRemaining .. ' Sekunden', 'info')
     end
 end)
 
@@ -835,7 +991,7 @@ end)
 
 Citizen.CreateThread(function()
     for kokainworker,v in pairs(Config.kokainworker) do
-        exports['rsg-core']:createPrompt(v.name, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
+        exports['rsg-core']:createPrompt(v.kokainworkerid, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
             type = 'client',
             event = 'mms-drugs:client:kokainmenu',
             args = {},
@@ -849,64 +1005,109 @@ Citizen.CreateThread(function()
     end
 end)
 
-
+RegisterNetEvent('mms-drugs:client:kokainmenu')
+AddEventHandler('mms-drugs:client:kokainmenu', function()
+    KokainMenu:Open({
+        startupPage = Page5, 
+    })
+end)
 
 -- Verarbeiter Menü
 
-RegisterNetEvent('mms-drugs:client:kokainmenu', function()
-    lib.registerContext(
-        {
-            id = 'kokainworker',
-            title = ('Kokain Verarbeiter Menu'),
-            position = 'top-right',
-            options = {
-                {
-                    title = ('Kokain Verarbeiten'),
-                    description = ('5 Kokain = 1 Kokain Pulver'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:kokainworker',
-                },
-                {
-                    title = ('Kokain Verarbeiten'),
-                    description = ('25 Kokain = 5 Kokain Pulver'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:kokainworker5',
-                },
-                {
-                    title = ('Kokain Verarbeiten'),
-                    description = ('50 Kokain = 10 Kokain Pulver'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:kokainworker10',
-                },
+Citizen.CreateThread(function()
+    KokainMenu = FeatherMenu:RegisterMenu('feather:character:kokainmenu', {
+        top = '40%',
+        left = '20%',
+        ['720width'] = '500px',
+        ['1080width'] = '600px',
+        ['2kwidth'] = '700px',
+        ['4kwidth'] = '900px',
+        style = {
+            -- ['height'] = '500px'
+            ['border'] = '5px solid green',
+            -- ['background-image'] = 'none',
+            ['background-color'] = '#006400'
+        },
+        contentslot = {
+            style = { --This style is what is currently making the content slot scoped and scrollable. If you delete this, it will make the content height dynamic to its inner content.
+                ['height'] = '500px',
+                ['min-height'] = '300px'
             }
-        }
-    )
-    lib.showContext('kokainworker')
-end)
-
-RegisterNetEvent('mms-drugs:client:kokainworker')
-AddEventHandler('mms-drugs:client:kokainworker', function(opiumworker)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:kokainworker' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:kokainworker5')
-AddEventHandler('mms-drugs:client:kokainworker5', function(opiumworker)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:kokainworker5' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:kokainworker10')
-AddEventHandler('mms-drugs:client:kokainworker10', function(opiumworker)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:kokainworker10' ,1)
-end)
+        },
+        draggable = true,
+        --canclose = false
+    })
+    Page5 = KokainMenu:RegisterPage('first:page5')
+    Page5:RegisterElement('header', {
+        value = 'Kokain Verarbeiter',
+        slot = "header",
+        style = {}
+    })
+    Page5:RegisterElement('line', {
+        slot = "header",
+        style = {}
+    })
+    TextDisplay13 = Page5:RegisterElement('textdisplay', {
+        value = "Verarbeite dein Kokain zu Kokain Pulver!",
+        style = {}
+    })
+    TextDisplay14 = Page5:RegisterElement('textdisplay', {
+        value = 'Rezept: ' .. Config.ReciepeKokainNeeded.. ' Kokain = '.. Config.ReciepeKokainReward .. ' Kokain Pulver!',
+        style = {}
+    })
+    local dauer = Config.WorktimeKokainWorker / 1000
+    TextDisplay15 = Page5:RegisterElement('textdisplay', {
+        value = 'Dauer: ' .. dauer .. ' Sekunden!',
+        style = {}
+    })
+    local inputValue = ''
+    Page5:RegisterElement('input', {
+        label = "Wie Oft Herstellen:",
+        placeholder = "1",
+        persist = false,
+        style = {
+       }
+    }, function(data)
+        inputValue = data.value
+    end)
+    Page5:RegisterElement('button', {
+        label = "Jetzt Verarbeiten",
+        style = {
+        },
+    }, function()
+        TriggerEvent('mms-drugs:client:kokainworker',inputValue)
+    end)
+    Page5:RegisterElement('button', {
+        label = "Verarbeiter Verlassen",
+        style = {
+        },
+    }, function()
+        KokainMenu:Close({ 
+        })
+    end)
+    Page5:RegisterElement('subheader', {
+        value = "Kokain Verarbeiter",
+        slot = "footer",
+        style = {}
+    })
+    Page5:RegisterElement('line', {
+        slot = "footer",
+        style = {}
+    })
+    end)
+    
+    
+    RegisterNetEvent('mms-drugs:client:kokainworker')
+    AddEventHandler('mms-drugs:client:kokainworker', function(inputValue)
+            local anzahl = tostring(inputValue)
+            TriggerServerEvent('mms-drugs:server:kokainworker' ,anzahl)
+    end)
 
 -- Verkäufer prompt
 
 Citizen.CreateThread(function()
     for kokainseller,v in pairs(Config.kokainseller) do
-        exports['rsg-core']:createPrompt(v.name, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
+        exports['rsg-core']:createPrompt(v.kokainsellerid, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
             type = 'client',
             event = 'mms-drugs:client:kokainsellermenu',
             args = {},
@@ -924,66 +1125,100 @@ end)
 
 -- Verkäufer Menü
 
-RegisterNetEvent('mms-drugs:client:kokainsellermenu', function()
-    lib.registerContext(
-        {
-            id = 'kokainseller',
-            title = ('Kokain Verkäufer Menu'),
-            position = 'top-right',
-            options = {
-                {
-                    title = ('Kokain Verkäufer'),
-                    description = ('1 Kokain Pulver = ' .. Config.sellpricekokain .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:kokainseller1',
-                },
-                {
-                    title = ('Kokain Verkäufer'),
-                    description = ('5 Kokain Pulver = ' .. Config.sellpricekokain * 5 .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:kokainseller5',
-                },
-                {
-                    title = ('Kokain Verkäufer'),
-                    description = ('25 Kokain Pulver = ' .. Config.sellpricekokain * 25 .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:kokainseller25',
-                },
-                {
-                    title = ('Kokain Verkäufer'),
-                    description = ('50 Kokain Pulver = ' .. Config.sellpricekokain * 50 .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:kokainseller50',
-                },
+RegisterNetEvent('mms-drugs:client:kokainsellermenu')
+AddEventHandler('mms-drugs:client:kokainsellermenu', function(inputValue)
+    KokainSellerMenu:Open({
+        startupPage = Page6,
+    })
+end)
+
+Citizen.CreateThread(function()
+    KokainSellerMenu = FeatherMenu:RegisterMenu('feather:character:kokainsellermenu', {
+        top = '40%',
+        left = '20%',
+        ['720width'] = '500px',
+        ['1080width'] = '600px',
+        ['2kwidth'] = '700px',
+        ['4kwidth'] = '900px',
+        style = {
+            -- ['height'] = '500px'
+            ['border'] = '5px solid green',
+            -- ['background-image'] = 'none',
+            ['background-color'] = '#006400'
+        },
+        contentslot = {
+            style = { --This style is what is currently making the content slot scoped and scrollable. If you delete this, it will make the content height dynamic to its inner content.
+                ['height'] = '500px',
+                ['min-height'] = '300px'
             }
+        },
+        draggable = true,
+        --canclose = false
+    })
+    Page6 = KokainSellerMenu:RegisterPage('first:page6')
+    Page6:RegisterElement('header', {
+        value = 'Kokain Pulver Verkäufer',
+        slot = "header",
+        style = {}
+    })
+    Page6:RegisterElement('line', {
+        slot = "header",
+        style = {}
+    })
+    TextDisplay16 = Page6:RegisterElement('textdisplay', {
+        value = "Verkaufe deine Kokain Pulver!",
+        style = {}
+    })
+    TextDisplay17 = Page6:RegisterElement('textdisplay', {
+        value = 'Preis: ' .. Config.SellKokainPrice.. ' $. Für ' .. Config.SellKokainAmount.. ' Kokain Pulver!',
+        style = {}
+    })
+    local dauer = Config.SellKokainTime / 1000
+    TextDisplay18 = Page6:RegisterElement('textdisplay', {
+        value = 'Dauer: ' .. dauer .. ' Sekunden!',
+        style = {}
+    })
+    local inputValue = ''
+    Page6:RegisterElement('input', {
+        label = "Wieviele Verkaufen:",
+        placeholder = "1",
+        persist = false,
+        style = {
         }
-    )
-    lib.showContext('kokainseller')
-end)
-
-RegisterNetEvent('mms-drugs:client:kokainseller1')
-AddEventHandler('mms-drugs:client:kokainseller1', function(opiatseller)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:kokainseller1' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:kokainseller5')
-AddEventHandler('mms-drugs:client:kokainseller5', function(opiatseller)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:kokainseller5' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:kokainseller25')
-AddEventHandler('mms-drugs:client:kokainseller25', function(opiatseller)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:kokainseller25' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:kokainseller50')
-AddEventHandler('mms-drugs:client:kokainseller50', function(opiatseller)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:kokainseller50' ,1)
-end)
+    }, function(data)
+        inputValue = data.value
+    end)
+    Page6:RegisterElement('button', {
+        label = "Jetzt Verkaufen",
+        style = {
+        },
+    }, function()
+        TriggerEvent('mms-drugs:client:kokainseller',inputValue)
+    end)
+    Page6:RegisterElement('button', {
+        label = "Verkäufer Verlassen",
+        style = {
+        },
+    }, function()
+        KokainSellerMenu:Close({ 
+        })
+    end)
+    Page6:RegisterElement('subheader', {
+        value = "Kokain Pulver Verkäufer",
+        slot = "footer",
+        style = {}
+    })
+    Page6:RegisterElement('line', {
+        slot = "footer",
+        style = {}
+    })
+    end)
+    
+    RegisterNetEvent('mms-drugs:client:kokainseller')
+    AddEventHandler('mms-drugs:client:kokainseller', function(inputValue)
+            local anzahl = tostring(inputValue)
+            TriggerServerEvent('mms-drugs:server:kokainseller' ,anzahl)
+    end)
 
 -----------------------------------------------------------------------------Pilze------------------------------------------------
 
@@ -991,10 +1226,10 @@ end)
 
 Citizen.CreateThread(function()
     for sporen,v in pairs(Config.sporenplant) do
-        exports['rsg-core']:createPrompt(v.name, v.coords -1, RSGCore.Shared.Keybinds['J'], 'Ernte ' ..v.lable, {
+        exports['rsg-core']:createPrompt(v.sporenplantid, v.coords -1, RSGCore.Shared.Keybinds['J'], 'Ernte ' ..v.lable, {
             type = 'client',
             event = 'mms-drugs:client:checksporenplant',
-            args = { v.name },
+            args = {  },
         })
         if v.showblipsporen == true then
             local sporenblip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.coords)
@@ -1035,7 +1270,7 @@ AddEventHandler('mms-drugs:client:checksporenplant', function(sporenplant)
         busy = true
         CrouchAnim()
         lib.progressCircle({
-            duration = 5000, -- Adjust the duration as needed
+            duration = Config.HaverestSporenTime, -- Adjust the duration as needed
             label = 'Ernte Sporen',
             position = 'bottom',
             useWhileDead = false, 
@@ -1045,7 +1280,7 @@ AddEventHandler('mms-drugs:client:checksporenplant', function(sporenplant)
         cooldownTimer()
         busy = false
     else
-        RSGCore.Functions.Notify('Die Pflanze wächst Bitte warte ' .. cooldownSecondsRemaining .. ' Sekunden', 'Wachstum')
+        RSGCore.Functions.Notify('Die Pflanze wächst Bitte warte ' .. cooldownSecondsRemaining .. ' Sekunden', 'info')
     end
 end)
 
@@ -1053,7 +1288,7 @@ end)
 
 Citizen.CreateThread(function()
     for sporenworker,v in pairs(Config.sporenworker) do
-        exports['rsg-core']:createPrompt(v.name, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
+        exports['rsg-core']:createPrompt(v.sporenworkerid, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
             type = 'client',
             event = 'mms-drugs:client:sporenmenu',
             args = {},
@@ -1071,59 +1306,109 @@ end)
 
 -- Verarbeiter Menü
 
-RegisterNetEvent('mms-drugs:client:sporenmenu', function()
-    lib.registerContext(
-        {
-            id = 'sporenworker',
-            title = ('Sporen Verarbeiter Menu'),
-            position = 'top-right',
-            options = {
-                {
-                    title = ('Sporen Verarbeiten'),
-                    description = ('5 Sporen = 1 Pilze'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:sporenworker',
-                },
-                {
-                    title = ('Sporen Verarbeiten'),
-                    description = ('25 Sporen = 5 Pilze'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:sporenworker5',
-                },
-                {
-                    title = ('Sporen Verarbeiten'),
-                    description = ('50 Sporen = 10 Pilze'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:sporenworker10',
-                },
+RegisterNetEvent('mms-drugs:client:sporenmenu')
+AddEventHandler('mms-drugs:client:sporenmenu', function()
+    SporenMenu:Open({
+        startupPage = Page7, 
+    })
+end)
+
+-- Verarbeiter Menü
+
+Citizen.CreateThread(function()
+    SporenMenu = FeatherMenu:RegisterMenu('feather:character:sporennmenu', {
+        top = '40%',
+        left = '20%',
+        ['720width'] = '500px',
+        ['1080width'] = '600px',
+        ['2kwidth'] = '700px',
+        ['4kwidth'] = '900px',
+        style = {
+            -- ['height'] = '500px'
+            ['border'] = '5px solid green',
+            -- ['background-image'] = 'none',
+            ['background-color'] = '#006400'
+        },
+        contentslot = {
+            style = { --This style is what is currently making the content slot scoped and scrollable. If you delete this, it will make the content height dynamic to its inner content.
+                ['height'] = '500px',
+                ['min-height'] = '300px'
             }
-        }
-    )
-    lib.showContext('sporenworker')
-end)
-
-RegisterNetEvent('mms-drugs:client:sporenworker')
-AddEventHandler('mms-drugs:client:sporenworker', function(sporenworker)
-        TriggerServerEvent('mms-drugs:server:sporenworker' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:sporenworker5')
-AddEventHandler('mms-drugs:client:sporenworker5', function(sporenworker)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:sporenworker5' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:sporenworker10')
-AddEventHandler('mms-drugs:client:sporenworker10', function(sporenworker)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:sporenworker10' ,1)
-end)
+        },
+        draggable = true,
+        --canclose = false
+    })
+    Page7 = SporenMenu:RegisterPage('first:page7')
+    Page7:RegisterElement('header', {
+        value = 'Sporen Verarbeiter',
+        slot = "header",
+        style = {}
+    })
+    Page7:RegisterElement('line', {
+        slot = "header",
+        style = {}
+    })
+    TextDisplay19 = Page7:RegisterElement('textdisplay', {
+        value = "Verarbeite deine Sporen zu Pilzen!",
+        style = {}
+    })
+    TextDisplay20 = Page7:RegisterElement('textdisplay', {
+        value = 'Rezept: ' .. Config.ReciepeSporenNeeded.. ' Sporen = '.. Config.ReciepeSporenReward .. ' Pilzen!',
+        style = {}
+    })
+    local dauer = Config.WorktimeSporenWorker / 1000
+    TextDisplay21 = Page7:RegisterElement('textdisplay', {
+        value = 'Dauer: ' .. dauer .. ' Sekunden!',
+        style = {}
+    })
+    local inputValue = ''
+    Page7:RegisterElement('input', {
+        label = "Wie Oft Herstellen:",
+        placeholder = "1",
+        persist = false,
+        style = {
+       }
+    }, function(data)
+        inputValue = data.value
+    end)
+    Page7:RegisterElement('button', {
+        label = "Jetzt Verarbeiten",
+        style = {
+        },
+    }, function()
+        TriggerEvent('mms-drugs:client:sporenworker',inputValue)
+    end)
+    Page7:RegisterElement('button', {
+        label = "Verarbeiter Verlassen",
+        style = {
+        },
+    }, function()
+        SporenMenu:Close({ 
+        })
+    end)
+    Page7:RegisterElement('subheader', {
+        value = "Sporen Verarbeiter",
+        slot = "footer",
+        style = {}
+    })
+    Page7:RegisterElement('line', {
+        slot = "footer",
+        style = {}
+    })
+    end)
+    
+    
+    RegisterNetEvent('mms-drugs:client:sporenworker')
+    AddEventHandler('mms-drugs:client:sporenworker', function(inputValue)
+            local anzahl = tostring(inputValue)
+            TriggerServerEvent('mms-drugs:server:sporenworker' ,anzahl)
+    end)
 
 -- Verkäufer prompt
 
 Citizen.CreateThread(function()
     for pilzeseller,v in pairs(Config.pilzeseller) do
-        exports['rsg-core']:createPrompt(v.name, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
+        exports['rsg-core']:createPrompt(v.pilzsellerid, v.coords, RSGCore.Shared.Keybinds['J'],  ('Open ') .. v.lable, {
             type = 'client',
             event = 'mms-drugs:client:pilzesellermenu',
             args = {},
@@ -1141,63 +1426,97 @@ end)
 
 -- Verkäufer Menü
 
-RegisterNetEvent('mms-drugs:client:pilzesellermenu', function()
-    lib.registerContext(
-        {
-            id = 'pilzeseller',
-            title = ('Pilz Verkäufer Menu'),
-            position = 'top-right',
-            options = {
-                {
-                    title = ('Pilz Verkäufer'),
-                    description = ('1 Pilz = ' .. Config.sellpricepilze .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:pilzeseller1',
-                },
-                {
-                    title = ('Pilz Verkäufer'),
-                    description = ('5 Pilze = ' .. Config.sellpricepilze * 5 .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:pilzeseller5',
-                },
-                {
-                    title = ('Pilz Verkäufer'),
-                    description = ('25 Pilze = ' .. Config.sellpricepilze * 25 .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:pilzeseller25',
-                },
-                {
-                    title = ('Pilz Verkäufer'),
-                    description = ('50 Pilze = ' .. Config.sellpricepilze * 50 .. ' $'),
-                    icon = 'fas fa-paw',
-                    event = 'mms-drugs:client:pilzeseller50',
-                },
+RegisterNetEvent('mms-drugs:client:pilzesellermenu')
+AddEventHandler('mms-drugs:client:pilzesellermenu', function(inputValue)
+    PilzSellerMenu:Open({
+        startupPage = Page8,
+    })
+end)
+
+Citizen.CreateThread(function()
+    PilzSellerMenu = FeatherMenu:RegisterMenu('feather:character:pilzesellermenu', {
+        top = '40%',
+        left = '20%',
+        ['720width'] = '500px',
+        ['1080width'] = '600px',
+        ['2kwidth'] = '700px',
+        ['4kwidth'] = '900px',
+        style = {
+            -- ['height'] = '500px'
+            ['border'] = '5px solid green',
+            -- ['background-image'] = 'none',
+            ['background-color'] = '#006400'
+        },
+        contentslot = {
+            style = { --This style is what is currently making the content slot scoped and scrollable. If you delete this, it will make the content height dynamic to its inner content.
+                ['height'] = '500px',
+                ['min-height'] = '300px'
             }
+        },
+        draggable = true,
+        --canclose = false
+    })
+    Page8 = PilzSellerMenu:RegisterPage('first:page8')
+    Page8:RegisterElement('header', {
+        value = 'Pilz Verkäufer',
+        slot = "header",
+        style = {}
+    })
+    Page8:RegisterElement('line', {
+        slot = "header",
+        style = {}
+    })
+    TextDisplay22 = Page8:RegisterElement('textdisplay', {
+        value = "Verkaufe deine Pilze!",
+        style = {}
+    })
+    TextDisplay23 = Page8:RegisterElement('textdisplay', {
+        value = 'Preis: ' .. Config.SellPilzPrice  .. ' $. Für ' .. Config.SellPilzAmount.. ' Pilze!',
+        style = {}
+    })
+    local dauer = Config.SellKokainTime / 1000
+    TextDisplay24 = Page8:RegisterElement('textdisplay', {
+        value = 'Dauer: ' .. dauer .. ' Sekunden!',
+        style = {}
+    })
+    local inputValue = ''
+    Page8:RegisterElement('input', {
+        label = "Wieviele Verkaufen:",
+        placeholder = "1",
+        persist = false,
+        style = {
         }
-    )
-    lib.showContext('pilzeseller')
-end)
-
-RegisterNetEvent('mms-drugs:client:pilzeseller1')
-AddEventHandler('mms-drugs:client:pilzeseller1', function(opiatseller)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:pilzeseller1' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:pilzeseller5')
-AddEventHandler('mms-drugs:client:pilzeseller5', function(opiatseller)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:pilzeseller5' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:pilzeseller25')
-AddEventHandler('mms-drugs:client:pilzeseller25', function(opiatseller)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:pilzeseller25' ,1)
-end)
-
-RegisterNetEvent('mms-drugs:client:pilzeseller50')
-AddEventHandler('mms-drugs:client:pilzeseller50', function(opiatseller)
-        Wait(500)
-        TriggerServerEvent('mms-drugs:server:pilzeseller50' ,1)
-end)
+    }, function(data)
+        inputValue = data.value
+    end)
+    Page8:RegisterElement('button', {
+        label = "Jetzt Verkaufen",
+        style = {
+        },
+    }, function()
+        TriggerEvent('mms-drugs:client:pilzseller',inputValue)
+    end)
+    Page8:RegisterElement('button', {
+        label = "Verkäufer Verlassen",
+        style = {
+        },
+    }, function()
+        PilzSellerMenu:Close({ 
+        })
+    end)
+    Page8:RegisterElement('subheader', {
+        value = "Pilz Verkäufer",
+        slot = "footer",
+        style = {}
+    })
+    Page8:RegisterElement('line', {
+        slot = "footer",
+        style = {}
+    })
+    end)
+    
+    RegisterNetEvent('mms-drugs:client:pilzseller')
+    AddEventHandler('mms-drugs:client:pilzseller', function(inputValue)
+            local anzahl = tostring(inputValue)
+            TriggerServerEvent('mms-drugs:server:pilzseller' ,anzahl)
+    end)
